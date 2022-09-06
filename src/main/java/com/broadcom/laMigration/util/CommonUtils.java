@@ -69,7 +69,7 @@ public class CommonUtils {
 
                 while( (line  = bufferedReader.readLine()) != null )
                 {
-                    if(jsonArray.size() == Integer.parseInt(Constants.JSON_ARRAY_SIZE)){
+                    if(jsonArray.size() == Constants.JSON_ARRAY_SIZE){
                         //make api call instead of storing it in local system
                         //writeJsonArrayToFile(jsonArray, Paths.get(inputFilePath).getFileName().toString() + jsonArraySize, outputPath);
                         ResponseEntity rs = laConsumer.postStandardLogInBatch(jsonArray.toJSONString());

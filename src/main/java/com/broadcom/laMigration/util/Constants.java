@@ -15,5 +15,8 @@ public class Constants {
     public static String FAILED_DIR_S3 = "";
     public static String INPUT_DIR_VM = "C:\\Users\\hkannan\\Desktop\\Harini\\Brodcom\\files\\";
     public static String OUTPUT_DIR_VM = "C:\\Users\\hkannan\\Desktop\\Harini\\Brodcom\\final\\";
-    public static String JSON_ARRAY_SIZE = "1000";
+    public static int JSON_ARRAY_SIZE = 1000;
+    public static int FEIGN_RETRY = 5;
+    public static long FEIGN_RETRY_INTERVAL = 2000L;
+
 }

@@ -1,5 +1,6 @@
 package com.broadcom.laMigration.consumer;
 
+import com.broadcom.laMigration.config.FeignCustomRetryerConfig;
 import com.broadcom.laMigration.config.LABadResponseConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -7,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient( name="la-collector-service", url = "http://logana-logcollector.10.82.175.241.nip.io"
-        , configuration= LABadResponseConfig.class)
+        , configuration= {LABadResponseConfig.class, FeignCustomRetryerConfig.class})
 public interface LAConsumer {
 
     //standard
