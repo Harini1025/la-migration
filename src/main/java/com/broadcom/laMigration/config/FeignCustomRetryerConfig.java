@@ -5,9 +5,10 @@ import feign.RetryableException;
 import feign.Retryer;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
-@Component
+@Configuration
 @NoArgsConstructor
 @Slf4j
 public class FeignCustomRetryerConfig implements Retryer {

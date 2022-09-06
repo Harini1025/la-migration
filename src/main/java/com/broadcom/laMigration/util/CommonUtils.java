@@ -11,19 +11,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import java.io.*;
+import java.sql.Timestamp;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Component
 public class CommonUtils {
 
     @Autowired
     private LAConsumer laConsumer;
+    private static  ObjectMapper objectMapper = new ObjectMapper();
+
+    static ExecutorService executor = Executors.newFixedThreadPool(5);
 
     protected static JsonObject processLine(String line) throws ParseException, JsonProcessingException {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("tenant_id", Constants.TENANT_ID);
         jsonObject.addProperty("logtype", "log4j");
         jsonObject.addProperty("temp_fields" , Constants.TENANT_ID + " dhcp-10-17-165-233 log4j dhcp-10-17-165-232 10.17.165.233 eu-region-west-1,eu-region-west-2 /opt/28jul/logs/log4j/cms.txt");
-        ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(line);
         jsonObject.addProperty("message", jsonNode.get("result").get("_raw").asText());
         return jsonObject;
@@ -50,9 +56,15 @@ public class CommonUtils {
                 while( (line  = bufferedReader.readLine()) != null )
                 {
                     if(jsonArray.size() == Constants.JSON_ARRAY_SIZE){
-                        ResponseEntity rs = laConsumer.postStandardLogInBatch(jsonArray.toString());
-                        int status = rs.getStatusCode().value();
-                        System.out.println(status + rs.getBody().toString());
+                       // laConsumer.postStandardLogInBatch(jsonArray.toString());
+                        JsonArray jsonArray1 = jsonArray;
+                        CompletableFuture.runAsync(()->{
+                            //writeJsonArrayToFile(jsonArray1, Paths.get(inputFilePath).getFileName().toString() + number, outputPath);
+                            ResponseEntity rs = laConsumer.postStandardLogInBatch(jsonArray1.toString());
+                            int status = rs.getStatusCode().value();
+                            System.out.println(status + rs.getBody().toString() + " "+ new Timestamp(System.currentTimeMillis()));
+                        },executor);
+
                         jsonArray = new JsonArray();
                     }
                     if(previousLine != null && previousLine.startsWith("{")){
@@ -71,9 +83,17 @@ public class CommonUtils {
                 }
                 if(jsonArray.size() > 0){
                     //make api call instead of storing it in local system
-                    ResponseEntity rs = laConsumer.postStandardLogInBatch(jsonArray.toString());
+                    //laConsumer.postStandardLogInBatch(jsonArray.toString());
+                    JsonArray jsonArray1 = jsonArray;
+                    CompletableFuture.runAsync(()->{
+                        //writeJsonArrayToFile(jsonArray1, Paths.get(inputFilePath).getFileName().toString() + number, outputPath);
+                        ResponseEntity rs = laConsumer.postStandardLogInBatch(jsonArray1.toString());
+                        int status = rs.getStatusCode().value();
+                        System.out.println(status + rs.getBody().toString() + " " + new Timestamp(System.currentTimeMillis()));
+                    },executor);
+                  /*  ResponseEntity rs = laConsumer.postStandardLogInBatch(jsonArray.toString());
                     int status = rs.getStatusCode().value();
-                    System.out.println(status + rs.getBody().toString());
+                    System.out.println(status + rs.getBody().toString());*/
                     jsonArray = new JsonArray();
                 }
                 System.out.println("Read chunk with line count: "+lineCount);
@@ -111,5 +131,7 @@ public class CommonUtils {
         int status = rs.getStatusCode().value();
         System.out.println(status + rs.getBody().toString());
     }
+
+
 
 }
