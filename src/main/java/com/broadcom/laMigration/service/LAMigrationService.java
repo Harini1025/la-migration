@@ -2,6 +2,7 @@ package com.broadcom.laMigration.service;
 
 import com.broadcom.laMigration.util.CommonUtils;
 import com.broadcom.laMigration.util.Constants;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Service
+@Slf4j
 public class LAMigrationService {
 
     @Autowired
@@ -31,15 +33,14 @@ public class LAMigrationService {
         ExecutorService executor = Executors.newFixedThreadPool(threads);
 
         Files.list(Paths.get(inputPath)).forEach( (file) -> {
-            System.out.println( new Timestamp(System.currentTimeMillis()));
             CompletableFuture.runAsync(() -> {
-                System.out.println("File name : " + file.getFileName().toString() + ", Thread : " + Thread.currentThread().getName());
+                log.info("File name : " + file.getFileName().toString() + ", Thread : " + Thread.currentThread().getName());
                 try {
                     commonUtils.splitFileAndProcessJson(inputPath + file.getFileName().toString(), sizeInMb, outputPath);
                 } catch (IOException | ParseException e) {
                     e.printStackTrace();
                 }
-                System.out.println( new Timestamp(System.currentTimeMillis()));
+                log.info(String.valueOf(new Timestamp(System.currentTimeMillis())));
             }, executor).handle((res, err) -> {
                 if (err != null) {
                     err.printStackTrace();
